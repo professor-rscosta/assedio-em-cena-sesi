@@ -67,21 +67,27 @@ const GameView = {
 
     this.sceneBox.innerHTML = `
       <div class="scene">
-        <span class="scene-type">${TIPO_LABEL[cenario.tipo] || cenario.tipo}</span>
-        <span class="scene-title">${UI.esc(cenario.titulo || '')}</span>
-        <img class="char-full" id="char-full" src="${img.full}" alt="${UI.esc(speaker)}">
-        <div class="char" id="char">
-          <div class="av-img"><img src="${img.av}" alt="${UI.esc(speaker)}"></div>
-          <div class="meta"><div class="nome">${UI.esc(speaker)}</div><div class="fn">em cena</div></div>
+        <div class="scene-bar">
+          <span class="scene-type">${TIPO_LABEL[cenario.tipo] || cenario.tipo}</span>
+          <span class="scene-title">${UI.esc(cenario.titulo || '')}</span>
         </div>
-        <div class="dialog" id="dialog">
-          <div class="speaker" style="color:${cor}">${UI.esc(speaker)}</div>
-          <div class="text" id="dlg-text"></div>
-          <div class="choices hidden" id="choices"></div>
+        <div class="scene-body">
+          <div class="scene-main">
+            <div class="dialog" id="dialog">
+              <div class="dialog-head">
+                <div class="av-img"><img src="${img.av}" alt="${UI.esc(speaker)}"></div>
+                <div class="meta"><div class="nome" style="color:${cor}">${UI.esc(speaker)}</div><div class="fn">em cena</div></div>
+              </div>
+              <div class="text" id="dlg-text"></div>
+              <div class="choices hidden" id="choices"></div>
+            </div>
+          </div>
+          <div class="scene-char">
+            <img class="char-full" id="char-full" src="${img.full}" alt="${UI.esc(speaker)}">
+          </div>
         </div>
       </div>`;
 
-    UI.entrarPersonagem(UI.$('#char', this.sceneBox));
     UI.entrarPersonagemFull(UI.$('#char-full', this.sceneBox));
 
     const textNode = UI.$('#dlg-text', this.sceneBox);
@@ -145,8 +151,8 @@ const GameView = {
       ${c.reflexao ? `<div class="cons-block reflexao"><span class="lab">Reflexão</span><span class="txt">${UI.esc(c.reflexao)}</span></div>` : ''}
       <button class="btn btn--primary btn--block" style="margin-top:8px" id="cont">Continuar →</button>`);
 
-    const scene = UI.$('.scene', this.sceneBox);
-    scene.appendChild(painel);
+    const main = UI.$('.scene-main', this.sceneBox) || UI.$('.scene', this.sceneBox);
+    main.appendChild(painel);
     if (window.gsap) gsap.from(painel, { opacity: 0, y: 18, duration: 0.5 });
     painel.scrollIntoView({ behavior: 'smooth', block: 'end' });
 

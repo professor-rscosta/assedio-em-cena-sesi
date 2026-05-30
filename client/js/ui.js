@@ -146,12 +146,12 @@ const UI = (() => {
     else { node.style.opacity = '1'; node.style.transform = 'none'; }
   }
 
-  // entrada do personagem corpo-inteiro (desliza da direita)
+  // entrada do personagem corpo-inteiro (sobe suavemente)
   function entrarPersonagemFull(node) {
     if (!node) return;
     if (window.gsap) {
-      gsap.fromTo(node, { opacity: 0, x: 40, scale: 0.96 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'power3.out' });
+      gsap.fromTo(node, { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' });
     } else { node.style.opacity = '1'; node.style.transform = 'none'; }
   }
 
