@@ -1,9 +1,12 @@
 const Usuario = require('../models/Usuario');
 const Jogo = require('../models/Jogo');
 const { Badge, Ranking, Certificado, Analytics, Log } = require('../models');
-const { gerarCertificado } = require('../services/certificado.service');
+const { gerarCertificado, gerarRelatorioRespostas } = require('../services/certificado.service');
 const { notificarCertificado } = require('../services/email.service');
 const { asyncHandler, httpError } = require('../middlewares/error');
+
+// perfis "femininos" usam a personagem Bia no certificado
+const PERFIL_PERSONAGEM = { rh: 'bia', vitima: 'bia' };
 
 // ---------- Gamificação ----------
 const meusBadges = asyncHandler(async (req, res) => {
@@ -30,12 +33,20 @@ const emitirCertificado = asyncHandler(async (req, res) => {
   const meus = await Badge.doUsuario(req.user.id);
   const badgeDestaque = meus.length ? meus[0].nome : null;
 
+  // personagem do certificado conforme o perfil jogado
+  let personagem = 'teo';
+  if (progresso.perfil_id) {
+    const perfis = await Jogo.listarPerfis();
+    const p = perfis.find((x) => x.id === progresso.perfil_id);
+    if (p && PERFIL_PERSONAGEM[p.chave]) personagem = PERFIL_PERSONAGEM[p.chave];
+  }
+
   const baseUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
   const { codigo, arquivoUrl } = await gerarCertificado({
     nome: user.nome,
     nivelMaturidade: user.nivel_maturidade,
     cargaHoraria: modulo.carga_horaria,
-    badgeDestaque,
+    badgeDestaque, personagem,
     baseUrl,
   });
 
@@ -49,6 +60,21 @@ const emitirCertificado = asyncHandler(async (req, res) => {
   notificarCertificado({ para: user.email, nome: user.nome, codigo, baseUrl }).catch(() => {});
 
   res.status(201).json({ codigo, arquivoUrl });
+});
+
+// ---------- Relatório de respostas (PDF separado) ----------
+const exportarRespostas = asyncHandler(async (req, res) => {
+  const moduloId = Number(req.params.moduloId);
+  const user = await Usuario.porId(req.user.id);
+  const respostas = await Jogo.respostasDoUsuario(req.user.id, moduloId);
+  if (!respostas.length) throw httpError(400, 'Nenhuma resposta registrada para este módulo.');
+
+  const baseUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  const { arquivoUrl } = await gerarRelatorioRespostas({
+    nome: user.nome, nivelMaturidade: user.nivel_maturidade, respostas, baseUrl,
+  });
+  await Log.registrar({ usuario_id: user.id, acao: 'respostas_exportadas', detalhe: { moduloId }, ip: req.ip });
+  res.status(201).json({ arquivoUrl });
 });
 
 const validarCertificado = asyncHandler(async (req, res) => {
@@ -89,6 +115,6 @@ const adminLogs = asyncHandler(async (req, res) => {
 
 module.exports = {
   meusBadges, ranking,
-  emitirCertificado, validarCertificado,
+  emitirCertificado, exportarRespostas, validarCertificado,
   adminUsuarios, adminAtualizarUsuario, adminRemoverUsuario, adminAnalytics, adminLogs,
 };

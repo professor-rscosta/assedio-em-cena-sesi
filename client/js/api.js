@@ -75,5 +75,6 @@ const API = (() => {
 
     // certificado
     emitirCertificado: (moduloId) => request('POST', `/certificados/modulos/${moduloId}`),
+    exportarRespostas: (moduloId) => request('POST', `/respostas/modulos/${moduloId}/exportar`),
   };
 })();

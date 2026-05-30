@@ -138,6 +138,34 @@
 
 /* escolhas */
 .choices { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+
+/* vídeo do YouTube */
+.video-wrap {
+  position: relative; width: 100%; aspect-ratio: 16/9; margin: 16px 0 4px;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  background: #000;
+}
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+.video-placeholder {
+  margin: 16px 0 4px; padding: 22px; border-radius: var(--radius-sm);
+  border: 1px dashed var(--sesi-verde); background: rgba(91,168,41,.08);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.video-placeholder strong { color: var(--sesi-verde-claro); font-size: 15px; }
+.video-placeholder span { color: var(--txt-dim); font-size: 13px; line-height: 1.5; }
+
+/* Verdadeiro/Falso: dois botões lado a lado */
+.choices--vf { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.choices--vf .choice { flex-direction: column; align-items: flex-start; }
+.choices--vf .idx {
+  width: 30px; height: 30px; font-size: 15px; margin-bottom: 4px;
+  background: rgba(30,111,208,.2);
+}
+
+/* Múltipla escolha / caso / ordenar: grid responsivo com marcador A,B,C */
+.choices--multipla, .choices--caso { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 720px) { .choices--multipla, .choices--caso { grid-template-columns: 1fr; } .choices--vf { grid-template-columns: 1fr; } }
 .choice {
   text-align: left; padding: 15px 18px; border-radius: var(--radius-sm);
   background: var(--glass); border: 1px solid var(--glass-border);

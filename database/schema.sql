@@ -80,13 +80,14 @@ CREATE TABLE cenarios (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   modulo_id       INT          NOT NULL,
   chave           VARCHAR(60)  NOT NULL UNIQUE,   -- ex: m1_intro, m1_quiz_1
-  tipo            ENUM('narrativa','quiz','dialogo','reflexao','final') NOT NULL DEFAULT 'narrativa',
+  tipo            ENUM('narrativa','quiz','dialogo','reflexao','final','video','caso','multipla','vf','ordenar') NOT NULL DEFAULT 'narrativa',
   titulo          VARCHAR(160),
   texto           TEXT,                            -- fala/contexto exibido
   personagem_id   INT          DEFAULT NULL,       -- quem fala (opcional)
   cenario_inicial BOOLEAN      NOT NULL DEFAULT FALSE,
   ordem           INT          NOT NULL DEFAULT 0,
   midia_url       VARCHAR(255) DEFAULT NULL,
+  video_url       VARCHAR(255) DEFAULT NULL,        -- embed do YouTube (cenas tipo 'video')
   audio_url       VARCHAR(255) DEFAULT NULL,
   criado_em       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (modulo_id)     REFERENCES modulos(id)     ON DELETE CASCADE,
@@ -182,6 +183,27 @@ CREATE TABLE progresso (
   FOREIGN KEY (perfil_id)        REFERENCES perfis(id)    ON DELETE SET NULL,
   FOREIGN KEY (cenario_atual_id) REFERENCES cenarios(id)  ON DELETE SET NULL,
   INDEX idx_progresso_usuario (usuario_id)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+--  RESPOSTAS (registro de cada decisão do jogador — base do relatório PDF)
+-- ---------------------------------------------------------------------
+CREATE TABLE respostas (
+  id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id    INT NOT NULL,
+  modulo_id     INT NOT NULL,
+  cenario_id    INT NOT NULL,
+  escolha_id    INT DEFAULT NULL,
+  cenario_titulo  VARCHAR(160),
+  cenario_tipo    VARCHAR(20),
+  pergunta        TEXT,        -- texto do cenário no momento
+  resposta_texto  VARCHAR(400),-- texto da escolha feita
+  correta         BOOLEAN DEFAULT NULL,
+  xp              INT NOT NULL DEFAULT 0,
+  respondido_em   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (modulo_id)  REFERENCES modulos(id)  ON DELETE CASCADE,
+  INDEX idx_respostas_usuario (usuario_id, modulo_id)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------

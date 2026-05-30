@@ -25,6 +25,9 @@ const ResultView = {
           <div id="cert-area">
             <button class="btn btn--primary btn--block" id="btn-cert">📜 Emitir meu certificado</button>
           </div>
+          <div id="resp-area" style="margin-top:10px">
+            <button class="btn btn--ghost btn--block" id="btn-resp">📄 Exportar minhas respostas (PDF)</button>
+          </div>
           <button class="btn btn--ghost btn--block" id="btn-voltar" style="margin-top:10px">Voltar ao início</button>
         </div>
       </div></div>`;
@@ -32,6 +35,21 @@ const ResultView = {
     this.renderRadar(ind);
 
     UI.$('#btn-voltar', root).addEventListener('click', onVoltar);
+
+    UI.$('#btn-resp', root).addEventListener('click', async () => {
+      const btn = UI.$('#btn-resp', root);
+      btn.disabled = true; btn.textContent = 'Gerando relatório...';
+      try {
+        const { arquivoUrl } = await API.exportarRespostas(moduloId);
+        const base = window.AEC_API_BASE ?? '';
+        UI.$('#resp-area', root).innerHTML = `
+          <a class="btn btn--ghost btn--block" href="${base}${arquivoUrl}" target="_blank" rel="noopener" style="border-color:rgba(91,168,41,.5)">📄 Baixar relatório de respostas</a>`;
+        UI.toast('Relatório de respostas gerado!', 'ok');
+      } catch (err) {
+        UI.toast(err.message, 'erro');
+        btn.disabled = false; btn.textContent = '📄 Exportar minhas respostas (PDF)';
+      }
+    });
 
     UI.$('#btn-cert', root).addEventListener('click', async () => {
       const btn = UI.$('#btn-cert', root);

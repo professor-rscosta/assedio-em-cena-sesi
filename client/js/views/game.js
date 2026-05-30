@@ -5,6 +5,8 @@
 const TIPO_LABEL = {
   narrativa: 'Narrativa', quiz: 'Decisão · Quiz',
   dialogo: 'Diálogo', reflexao: 'Reflexão', final: 'Desfecho',
+  video: 'Vídeo · Assista', caso: 'Estudo de Caso',
+  multipla: 'Múltipla Escolha', vf: 'Verdadeiro ou Falso', ordenar: 'Boas Práticas',
 };
 
 // Mapa de personagens → mascotes SESI (avatar circular + corpo inteiro).
@@ -64,6 +66,7 @@ const GameView = {
     const speaker = cenario.personagem_nome || 'Narrador';
     const cor = cenario.personagem_cor || 'var(--sesi-azul)';
     const img = imgPersonagem(speaker);
+    const videoHtml = this.montarVideo(cenario);
 
     this.sceneBox.innerHTML = `
       <div class="scene">
@@ -79,6 +82,7 @@ const GameView = {
                 <div class="meta"><div class="nome" style="color:${cor}">${UI.esc(speaker)}</div><div class="fn">em cena</div></div>
               </div>
               <div class="text" id="dlg-text"></div>
+              ${videoHtml}
               <div class="choices hidden" id="choices"></div>
             </div>
           </div>
@@ -100,10 +104,30 @@ const GameView = {
     this.renderEscolhas(cenario);
   },
 
+  montarVideo(cenario) {
+    if (cenario.tipo !== 'video' || !cenario.video_url) return '';
+    const url = String(cenario.video_url);
+    // placeholder não configurado: mostra aviso de onde colocar o vídeo
+    if (!/^https?:\/\//i.test(url)) {
+      return `<div class="video-placeholder">
+        <strong>🎬 Espaço para vídeo do YouTube</strong>
+        <span>Cole o link "embed" do vídeo no banco (cenarios.video_url) desta cena.
+        Ex.: https://www.youtube.com/embed/SEU_ID</span>
+      </div>`;
+    }
+    return `<div class="video-wrap">
+      <iframe src="${UI.esc(url)}" title="Vídeo" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen loading="lazy"></iframe>
+    </div>`;
+  },
+
   renderEscolhas(cenario) {
     const box = UI.$('#choices', this.sceneBox);
     box.innerHTML = '';
     box.classList.remove('hidden');
+    // classe de estilo conforme o formato
+    box.className = `choices choices--${cenario.tipo}`;
 
     if (cenario.tipo === 'final' || !cenario.escolhas?.length) {
       const btn = UI.el('button', 'btn btn--primary', 'Ver meu resultado →');
@@ -112,12 +136,19 @@ const GameView = {
       return;
     }
 
+    const letras = ['A', 'B', 'C', 'D', 'E'];
     cenario.escolhas.forEach((esc, i) => {
+      let marcador = String(i + 1);
+      if (cenario.tipo === 'multipla' || cenario.tipo === 'caso' || cenario.tipo === 'ordenar') {
+        marcador = letras[i] || marcador;
+      } else if (cenario.tipo === 'vf') {
+        marcador = /^v|verdade/i.test(esc.texto) ? 'V' : 'F';
+      }
       const btn = UI.el('button', 'choice', `
-        <span class="idx">${i + 1}</span><span>${UI.esc(esc.texto)}</span>`);
+        <span class="idx">${marcador}</span><span>${UI.esc(esc.texto)}</span>`);
       btn.addEventListener('click', () => this.escolher(esc.id, box));
       box.appendChild(btn);
-      if (window.gsap) gsap.from(btn, { opacity: 0, x: -12, delay: 0.06 * i, duration: 0.4 });
+      if (window.gsap) gsap.from(btn, { opacity: 0, y: 10, delay: 0.06 * i, duration: 0.4 });
     });
   },
 

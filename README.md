@@ -95,6 +95,26 @@ Derivada do XP total: `observador` (<80) → `agente` (80–199) → `guardiao` 
 ## Modo cooperativo (Socket.io)
 Eventos: `sala:entrar`, `sala:votar`, `sala:avancar`, com broadcast de `sala:atualizada` e `sala:votos` para decisões em grupo em tempo real.
 
+## Módulo 1 — 10 situações interativas
+O Módulo 1 traz 10 situações em formatos variados, todas no contexto da indústria/SESI:
+
+1. Narrativa de abertura (chão de fábrica)
+2. **Vídeo** — "Você sabe o que é assédio?" (YouTube) + pergunta
+3. Verdadeiro ou Falso — o mito do grito
+4. Diálogo — a piada na reunião de produção
+5. Múltipla escolha — classificar a conduta
+6. Estudo de caso — a meta abusiva e o adoecimento
+7. **Vídeo** (placeholder) — impactos do assédio na saúde
+8. Boas práticas — o primeiro passo da testemunha
+9. Diálogo — acolhimento no corredor
+10. Quiz — o papel da prevenção (SESI/CIPA)
+
+Cada formato tem visual próprio (V/F lado a lado, múltipla com A/B/C/D, player de vídeo embutido). Onde trocar/colocar vídeos: ver **[`docs/ASSETS.md`](docs/ASSETS.md)**.
+
+## Certificado e relatório (dois PDFs)
+- **Certificado** (paisagem): logo SESI, personagem (Téo/Bia conforme o perfil), nome do participante, nível de maturidade, insígnia conquistada e QR Code de validação.
+- **Relatório de respostas** (retrato): cabeçalho SESI, dados do participante, contagem de acertos e a lista de todas as decisões tomadas, com marcação de certo/errado. Botão próprio na tela de resultado.
+
 ## Imagens e personagens (SESI)
 A plataforma usa a logo oficial do SESI e dois mascotes de segurança do trabalho (Téo e Bia) nas cenas. Os arquivos ficam em `client/images/` e `client/avatars/`. Detalhes completos de onde salvar e como trocar personagens estão em **[`docs/ASSETS.md`](docs/ASSETS.md)**.
 

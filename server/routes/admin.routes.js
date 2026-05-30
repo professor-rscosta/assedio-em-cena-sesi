@@ -8,6 +8,7 @@ router.get('/ranking', autenticar, c.ranking);
 
 // --- Certificados ---
 router.post('/certificados/modulos/:moduloId', autenticar, c.emitirCertificado);
+router.post('/respostas/modulos/:moduloId/exportar', autenticar, c.exportarRespostas);
 router.get('/certificados/validar/:codigo', c.validarCertificado); // público
 
 // --- Admin / RH ---

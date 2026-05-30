@@ -45,6 +45,35 @@ const Jogo = {
     return queryOne(`SELECT * FROM consequencias WHERE escolha_id = :id LIMIT 1`, { id: escolhaId });
   },
 
+  // ---------- Respostas (base do relatório PDF) ----------
+  async registrarResposta({ usuarioId, moduloId, cenario, escolha }) {
+    await query(
+      `INSERT INTO respostas
+         (usuario_id, modulo_id, cenario_id, escolha_id, cenario_titulo, cenario_tipo,
+          pergunta, resposta_texto, correta, xp)
+       VALUES (:u, :m, :ci, :ei, :ct, :ctp, :pg, :rt, :cor, :xp)`,
+      {
+        u: usuarioId, m: moduloId, ci: cenario.id, ei: escolha.id,
+        ct: cenario.titulo || null, ctp: cenario.tipo || null,
+        pg: cenario.texto ? String(cenario.texto).slice(0, 2000) : null,
+        rt: escolha.texto ? String(escolha.texto).slice(0, 400) : null,
+        cor: escolha.correta === null || escolha.correta === undefined ? null : escolha.correta,
+        xp: escolha.xp || 0,
+      }
+    );
+  },
+
+  respostasDoUsuario(usuarioId, moduloId) {
+    return query(
+      `SELECT * FROM respostas WHERE usuario_id = :u AND modulo_id = :m ORDER BY respondido_em, id`,
+      { u: usuarioId, m: moduloId }
+    );
+  },
+
+  async limparRespostas(usuarioId, moduloId) {
+    await query(`DELETE FROM respostas WHERE usuario_id = :u AND modulo_id = :m`, { u: usuarioId, m: moduloId });
+  },
+
   // ---------- Progresso ----------
   progresso(usuarioId, moduloId) {
     return queryOne(

@@ -34,6 +34,7 @@ const iniciar = asyncHandler(async (req, res) => {
   if (!inicial) throw httpError(500, 'Módulo sem cenário inicial configurado.');
 
   await Jogo.iniciarProgresso(req.user.id, moduloId, perfilId, inicial.id);
+  await Jogo.limparRespostas(req.user.id, moduloId);
   await Analytics.registrar({ usuario_id: req.user.id, evento: 'modulo_iniciado', cenario_id: inicial.id });
 
   const cenario = await Jogo.cenarioComEscolhas(inicial.id);
@@ -65,8 +66,10 @@ const escolher = asyncHandler(async (req, res) => {
   }
 
   // aplica deltas + xp e move para o próximo cenário
+  const cenarioOrigem = await Jogo.cenarioComEscolhas(escolha.cenario_id);
   const novoProgresso = await Jogo.aplicarEscolha(req.user.id, moduloId, escolha);
   await Usuario.somarXp(req.user.id, escolha.xp);
+  await Jogo.registrarResposta({ usuarioId: req.user.id, moduloId, cenario: cenarioOrigem, escolha });
   const consequencia = await Jogo.consequenciaDaEscolha(escolhaId);
 
   await Analytics.registrar({
