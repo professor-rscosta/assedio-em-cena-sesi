@@ -131,5 +131,18 @@ git push -u origin main
 
 No Windows/PowerShell os comandos são idênticos (o git é o mesmo). Se o push pedir autenticação, use um **Personal Access Token** do GitHub como senha. O `.gitignore` já exclui `node_modules/`, `.env` e uploads — então rode `npm install` após clonar em outra máquina.
 
+## Atualizando um banco já existente (migração)
+Se você **já tinha o banco criado** numa versão anterior e atualizou os arquivos, o schema mudou (coluna `cenarios.video_url`, novos tipos de cena e tabela `respostas`). Rode a migração — ela **não apaga seus dados**:
+
+```bash
+npm run db:migrate    # adiciona o que falta sem dropar nada
+npm run seed          # repopula o Módulo 1 com as 10 situações
+```
+
+Se aparecer no app a mensagem "Banco de dados desatualizado", é exatamente isso: rode os dois comandos acima. Para um banco do zero, continue usando `npm run db:init && npm run seed`.
+
+## Bibliotecas (GSAP e Chart.js)
+GSAP e Chart.js são servidas **localmente** em `client/js/vendor/` (não via CDN). Isso evita o bloqueio de "Tracking Prevention"/"Proteção contra Rastreamento" de navegadores como Edge, que impediam o carregamento das animações e do gráfico. Nada a configurar — já vêm no projeto.
+
 ## Próximos módulos
 A estrutura (`modulos`, `cenarios`, `escolhas`, `consequencias`) é genérica: para adicionar os Módulos 2–5, basta inserir novos registros seguindo o padrão de `database/seed_modulo1.sql`.

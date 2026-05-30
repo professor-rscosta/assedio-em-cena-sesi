@@ -11,6 +11,13 @@ function errorHandler(err, req, res, next) { // eslint-disable-line
   if (err.code === 'ER_DUP_ENTRY') {
     return res.status(409).json({ erro: 'Registro já existe (valor duplicado).' });
   }
+  // Schema desatualizado (tabela/coluna que o código novo espera não existe ainda)
+  if (err.code === 'ER_NO_SUCH_TABLE' || err.code === 'ER_BAD_FIELD_ERROR') {
+    console.error('[ERRO] Banco desatualizado. Rode: npm run db:migrate (ou npm run db:init && npm run seed).');
+    return res.status(500).json({
+      erro: 'Banco de dados desatualizado. Rode "npm run db:migrate" no servidor para aplicar as mudanças.',
+    });
+  }
   const status = err.status || 500;
   res.status(status).json({
     erro: err.publicMessage || 'Erro interno do servidor.',
