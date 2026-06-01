@@ -1,6 +1,13 @@
 node_modules/
+
+# Variáveis de ambiente / segredos — nunca versionar
 .env
+.env.*
+!.env.example
+
+# Uploads gerados em runtime (certificados, relatórios)
 uploads/*
 !uploads/.gitkeep
+
 npm-debug.log*
 .DS_Store

@@ -1,6 +1,40 @@
 # 🚀 Deploy na nuvem + incorporar no Moodle (iframe)
 
-## Visão geral
+## Deploy na Hostinger
+
+A Hostinger tem planos diferentes, e isso muda **se** a aplicação roda:
+
+- **Hospedagem compartilhada (Web Hosting / Premium / Business):** é focada em PHP. Você até consegue criar o **banco MySQL** ali, mas normalmente **não roda Node.js** de forma persistente. Use o banco da Hostinger e rode a aplicação Node em outro lugar (Render, Railway), ou contrate uma VPS.
+- **VPS Hostinger:** roda Node.js sem problema — é o cenário ideal. Você tem acesso SSH e instala tudo como num servidor próprio.
+
+### Passos (VPS Hostinger)
+1. Acesse a VPS por SSH (dados no painel da Hostinger).
+2. Instale Node 18+ e o cliente MySQL. Clone o projeto do GitHub.
+3. Copie `.env.producao` para `.env` e ajuste (veja abaixo).
+4. `npm install` → `npm run db:init` → `npm run seed` → `npm start`.
+5. Para manter no ar, use **PM2**: `npm i -g pm2 && pm2 start server.js --name assedio` e `pm2 startup`.
+6. Configure um domínio/HTTPS apontando para a porta da aplicação (proxy reverso com Nginx + Certbot).
+
+### Variáveis de ambiente (dados do seu banco Hostinger)
+O arquivo `.env.producao` já vem preenchido. No servidor, renomeie para `.env`:
+
+```
+DB_HOST=127.0.0.1          # veja observação abaixo
+DB_PORT=3306
+DB_USER=u429575031_adm_sst_sesi
+DB_PASSWORD=ADM@rsc@2027
+DB_NAME=u429575031_sst_sesi
+```
+
+> **DB_HOST na Hostinger:** se a aplicação roda **na mesma máquina** do banco (VPS), `127.0.0.1` ou `localhost` funciona. Se o banco está na hospedagem compartilhada e a app roda **em outro servidor**, o host **não** é `127.0.0.1` — é o hostname que aparece no painel (em "Bancos de Dados MySQL", algo como `srvXXX.hstgr.io`), e você precisa liberar "Remote MySQL" para o IP da aplicação.
+
+> **Senha com `@`:** sua senha tem `@`. Nas variáveis `DB_*` isso funciona perfeitamente (a aplicação usa `DB_PASSWORD` direto). **Só não** monte uma `DATABASE_URL` no formato `mysql://user:senha@host` com essa senha — os `@` quebram a URL. A aplicação não usa `DATABASE_URL`, então ignore esse formato.
+
+> **Segurança:** troque o `JWT_SECRET` por uma chave longa e aleatória, e troque `ADMIN_SENHA`. Como a senha do banco foi compartilhada, considere trocá-la no painel da Hostinger após configurar.
+
+---
+
+## Visão geral (outros provedores)
 A plataforma é uma aplicação full-stack (Node.js + MySQL). Para embutir no Moodle, ela precisa estar **hospedada e acessível por HTTPS**. O fluxo é: (1) subir num serviço de nuvem, (2) liberar o embed para o domínio do seu Moodle, (3) inserir um iframe na atividade.
 
 ---
